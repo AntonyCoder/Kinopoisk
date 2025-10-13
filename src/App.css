@@ -1,0 +1,24 @@
+*{
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: sans-serif;
+}
+
+#root{
+    margin: 20px auto;
+    padding: 10px;
+    width: 50%;
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+
+    border: 1px solid black;
+    border-radius: 10px;
+}
+
+input:focus{
+    outline: none;
+}
