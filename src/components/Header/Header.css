@@ -1,0 +1,21 @@
+.header {
+
+    background-color: #257cdf;
+}
+
+.nav {
+    display: flex;
+    gap: 15px;
+
+    padding: 0 20px;
+}
+
+.link,
+.active-link {
+    padding: 20px 10px;
+}
+
+.active-link {
+    text-decoration: underline;
+    background-color: #1b62b4;
+}
