@@ -1,0 +1,12 @@
+.favorites-page,
+.favorites-grid,
+.favorites-empty,
+.empty-state {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.browse-link{
+    color: blue;
+}

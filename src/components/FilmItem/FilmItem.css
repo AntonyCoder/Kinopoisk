@@ -2,6 +2,9 @@
     display: flex;
     align-items: center;
     gap: 10px;
+    width: 80%;
+    position: relative;
+    color: black;
 }
 
 .film-poster{
@@ -10,4 +13,16 @@
 
 .film-title{
     font-size: 22px;
+}
+
+.film-favorite-button{
+    position: absolute;
+    top: 0;
+    right: 0;
+    cursor: pointer;
+}
+
+.favorite-icon{
+    width: 25px;
+    height: 25px;
 }

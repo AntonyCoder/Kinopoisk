@@ -1,16 +1,16 @@
 import SearchInput from '../SearchInput/SearchInput';
-import { useDispatch, useSelector } from 'react-redux';
-import './MainPage.css';
+import { Link } from 'react-router-dom';
+import { useSelector } from 'react-redux';
 import FilmItem from '../FilmItem/FilmItem';
+import './MainPage.css';
 
 function MainPage() {
-    const { items, loading, error } = useSelector(state => state.movies)
-    const uniqueItems = removeDuplicates(items)
-    console.log(uniqueItems);
+    const { items, loading, error } = useSelector(state => state.movies);
+    const uniqueItems = removeDuplicates(items);
 
     function removeDuplicates(movies) {
         const unique = movies.filter((movie, index, self) => {
-            return index === self.findIndex(m => m.imdbID === movie.imdbID)
+            return index === self.findIndex(m => m.imdbID === movie.imdbID);
         })
 
         return unique;
@@ -20,8 +20,14 @@ function MainPage() {
         <div className="main-page">
             <SearchInput />
             <div className="film-container">
+                {loading && (<div>Загрузка данных...</div>)}
+                {error && (<div>{error}</div>)}
                 {uniqueItems.map(item => (
-                    <FilmItem data={item} key={item.imdbID} />
+                    <Link
+                        to={`film/${item.imdbID}`}
+                        key={item.imdbID}>
+                        <FilmItem data={item} />
+                    </Link>
                 ))}
             </div>
         </div>
