@@ -13,7 +13,7 @@ const favoritesSlice = createSlice({
             if (!exist) {
                 state.items.push(movie);
             } else {
-                state.items = state.items.filter(item => item.imdbID !== movie.imdbID)
+                state.items = state.items.filter(item => item.imdbID !== movie.imdbID);
             }
         }
     }

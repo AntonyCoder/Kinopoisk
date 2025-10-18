@@ -1,7 +1,7 @@
 import './SearchInput.css';
 import MagnifierIcon from '@gravity-ui/icons/svgs/magnifier.svg';
 import { useDispatch } from 'react-redux';
-import { fetchMovies, clearMovies } from '../../slices/movieSlice';
+import { fetchMovies } from '../../slices/movieSlice';
 
 function SearchInput() {
     const dispatch = useDispatch();
