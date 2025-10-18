@@ -1,0 +1,13 @@
+.film-item{
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.film-poster{
+    width: 200px;
+}
+
+.film-title{
+    font-size: 22px;
+}
