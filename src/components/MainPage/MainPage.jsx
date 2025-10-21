@@ -3,18 +3,11 @@ import { Link } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import FilmItem from '../FilmItem/FilmItem';
 import './MainPage.css';
+import { selectUniqueMovies } from '../../slices/movieSlice';
 
 function MainPage() {
-    const { items, loading, error } = useSelector(state => state.movies);
-    const uniqueItems = removeDuplicates(items);
-
-    function removeDuplicates(movies) {
-        const unique = movies.filter((movie, index, self) => {
-            return index === self.findIndex(m => m.imdbID === movie.imdbID);
-        })
-
-        return unique;
-    }
+    const { loading, error } = useSelector(state => state.movies);
+    const uniqueItems = useSelector(selectUniqueMovies)
 
     return (
         <div className="main-page">

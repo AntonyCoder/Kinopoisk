@@ -7,13 +7,14 @@ const favoritesSlice = createSlice({
     },
     reducers: {
         toggleFavorite: (state, action) => {
-            const movie = action.payload;
-            const exist = state.items.find(item => item.imdbID === movie.imdbID);
 
-            if (!exist) {
+            const movie = action.payload;
+            const index = state.items.findIndex(item => item.imdbID === movie.imdbID);
+
+            if (index === -1) {
                 state.items.push(movie);
             } else {
-                state.items = state.items.filter(item => item.imdbID !== movie.imdbID);
+                state.items.splice(index, 1);
             }
         }
     }

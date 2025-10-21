@@ -14,14 +14,17 @@ function FilmItemPage() {
     const { id } = useParams();
     const { currentMovie, loading, error } = useSelector(state => state.movies);
     const [imageSrc, setImageSrc] = useState(defaultPoster);
-    const [displayMovie, setDisplayMovie] = useState(null);
+
     const favorites = useSelector(state => state.favorites.items);
-    const isFavorite = favorites.some(fav => fav.imdbID === currentMovie.imdbID);
+
+    const isCurrentMovie = currentMovie && currentMovie.imdbID === id;
+    const isFavorite = isCurrentMovie && favorites.some(fav => fav.imdbID === currentMovie.imdbID);
+    const posterSrc = isCurrentMovie && isCurrentMovie.Poster !== 'N/A'
+        ? currentMovie.Poster
+        : defaultPoster
 
     //Сбрасываем состояние при смене id
     useEffect(() => {
-        setDisplayMovie(null);
-        setImageSrc(defaultPoster);
 
         if (id) {
             dispatch(fetchMovieDetails(id));
@@ -30,14 +33,13 @@ function FilmItemPage() {
 
     //Обновляем отображаемые данные только когда загружен новый фильм
     useEffect(() => {
-        if (currentMovie && currentMovie.imdbID === id) {
-            setDisplayMovie(currentMovie);
-            const posterSrc = currentMovie.Poster === 'N/A' ? defaultPoster : currentMovie.Poster;
-
-            setImageSrc(posterSrc);
+        if (isCurrentMovie) {
+            setImageSrc(posterSrc)
+        } else {
+            setImageSrc(defaultPoster)
         }
 
-    }, [currentMovie, id])
+    }, [isCurrentMovie, posterSrc])
 
     //Обработчик ошибки загрузки постера
     function handleImageError() {
@@ -53,20 +55,22 @@ function FilmItemPage() {
     function handleFavorite(e) {
         e.preventDefault();
         e.stopPropagation();
-        dispatch(toggleFavorite(currentMovie))
+        if (currentMovie) {
+            dispatch(toggleFavorite(currentMovie));
+        }
     }
 
     // Показываем загрузку или старый контент только если это тот же фильм
-    if (loading && !displayMovie) {
+    if (loading && !isCurrentMovie) {
         return <div className="loading">Загрузка...</div>;
     }
 
-    if (error && !displayMovie) {
+    if (error && !isCurrentMovie) {
         return <div className="error">Ошибка: {error}</div>;
     }
 
     // Если displayMovie не установлен (переход на новый фильм), показываем загрузку
-    if (!displayMovie) {
+    if (!isCurrentMovie) {
         return <div className="loading">Загрузка фильма...</div>;
     }
 
@@ -80,7 +84,7 @@ function FilmItemPage() {
                 <div className="film-poster-section">
                     <img
                         src={imageSrc}
-                        alt={displayMovie.Title}
+                        alt={currentMovie.Title}
                         className="film-detail-poster"
                         onError={handleImageError}
                     />
@@ -91,9 +95,9 @@ function FilmItemPage() {
 
                 <div className="film-info-section">
                     <div className="film-header">
-                        <h1 className="film-title">{displayMovie.Title}</h1>
+                        <h1 className="film-title">{currentMovie.Title}</h1>
                         <div className="film-rating">
-                            <span className="rating-value">⭐ {displayMovie.imdbRating}</span>
+                            <span className="rating-value">⭐ {currentMovie.imdbRating}</span>
                             <span className="rating-source">/10 IMDb</span>
                         </div>
                     </div>
@@ -101,33 +105,33 @@ function FilmItemPage() {
                     <div className="film-meta">
                         <div className="meta-item">
                             <span className="meta-label">Год выпуска:</span>
-                            <span className="meta-value">{displayMovie.Year}</span>
+                            <span className="meta-value">{currentMovie.Year}</span>
                         </div>
                         <div className="meta-item">
                             <span className="meta-label">Продолжительность:</span>
-                            <span className="meta-value">{displayMovie.Runtime}</span>
+                            <span className="meta-value">{currentMovie.Runtime}</span>
                         </div>
                         <div className="meta-item">
                             <span className="meta-label">Жанр:</span>
-                            <span className="meta-value">{displayMovie.Genre}</span>
+                            <span className="meta-value">{currentMovie.Genre}</span>
                         </div>
                     </div>
 
                     <div className="film-credits">
                         <div className="credit-group">
                             <h3 className="credit-title">Режиссер</h3>
-                            <p className="credit-value">{displayMovie.Director}</p>
+                            <p className="credit-value">{currentMovie.Director}</p>
                         </div>
                         <div className="credit-group">
                             <h3 className="credit-title">Актеры</h3>
-                            <p className="credit-value">{displayMovie.Actors}</p>
+                            <p className="credit-value">{currentMovie.Actors}</p>
                         </div>
                     </div>
 
-                    {displayMovie.Plot && displayMovie.Plot !== 'N/A' && (
+                    {currentMovie.Plot && currentMovie.Plot !== 'N/A' && (
                         <div className="film-plot">
                             <h3 className="plot-title">Сюжет</h3>
-                            <p className="plot-text">{displayMovie.Plot}</p>
+                            <p className="plot-text">{currentMovie.Plot}</p>
                         </div>
                     )}
                 </div>

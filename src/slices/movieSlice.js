@@ -1,48 +1,55 @@
-import { createSlice } from "@reduxjs/toolkit";
+import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 
 const apiUrl = import.meta.env.VITE_API_URL;
 const apiKey = import.meta.env.VITE_API_KEY;
 
-export function fetchMovies(searchQuery) {
-    return async function fetchMoviesThunk(dispatch) {
-        dispatch(clearMovies())
-        dispatch(moviesLoading());
+function removeDuplicates(movies) {
+    if (!movies || !Array.isArray(movies)) return [];
 
+    const unique = movies.filter((movie, index, self) => {
+        return index === self.findIndex(m => m.imdbID === movie.imdbID);
+    })
+
+    return unique;
+}
+
+export const fetchMovies = createAsyncThunk(
+    'movies/fetchMovies',
+    async (searchQuery, { rejectWithValue }) => {
         try {
             const response = await fetch(`${apiUrl}?apikey=${apiKey}&s=${searchQuery}`);
             const data = await response.json();
 
             if (data.Response === 'True') {
-                dispatch(moviesReceived(data.Search));
+                return data.Search;
             } else {
-                dispatch(moviesFailed(data.Error));
+                return rejectWithValue(data.Error || 'Movies not found');
             }
         } catch (error) {
-            dispatch(moviesFailed(error.message));
             console.error(error.message);
+            return rejectWithValue(error.message);
         }
     }
-}
+)
 
-export function fetchMovieDetails(movieId) {
-    return async function fetchMoviesDetailsThunk(dispatch) {
-        dispatch(movieDetailsLoading());
-
+export const fetchMovieDetails = createAsyncThunk(
+    'movies/fetchMovieDetails',
+    async (movieId, { rejectWithValue }) => {
         try {
             const response = await fetch(`${apiUrl}?apikey=${apiKey}&i=${movieId}`);
             const data = await response.json();
 
             if (data.Response === 'True') {
-                dispatch(movieDetailsReceived(data));
+                return data
             } else {
-                dispatch(movieDetailsFailed(data.Error));
+                return rejectWithValue(data.Error);
             }
         } catch (error) {
-            dispatch(movieDetailsFailed(error.message));
             console.error(error.message);
+            return rejectWithValue(error.message);
         }
     }
-}
+)
 
 const movieSlice = createSlice({
     name: 'movies',
@@ -53,44 +60,44 @@ const movieSlice = createSlice({
         error: null,
     },
     reducers: {
-        moviesLoading: (state) => {
-            state.loading = true;
-            state.error = null;
-        },
-        moviesReceived: (state, action) => {
-            state.loading = false;
-            state.items = action.payload;
-        },
-        moviesFailed: (state, action) => {
-            state.loading = false;
-            state.error = action.payload;
-        },
-        movieDetailsLoading: (state) => {
-            state.loading = true;
-            state.error = null;
-        },
-        movieDetailsReceived: (state, action) => {
-            state.loading = false;
-            state.currentMovie = action.payload;
-        },
-        movieDetailsFailed: (state, action) => {
-            state.loading = false;
-            state.error = action.payload;
-        },
         clearMovies: (state) => {
             state.items = [];
+            state.error = null
         },
+    },
+    extraReducers: (builder) => {
+        builder
+            //fetchMovies
+            .addCase(fetchMovies.pending, (state) => {
+                state.loading = true;
+                state.error = null;
+            })
+            .addCase(fetchMovies.fulfilled, (state, action) => {
+                state.loading = false;
+                state.items = action.payload;
+            })
+            .addCase(fetchMovies.rejected, (state, action) => {
+                state.loading = false;
+                state.error = action.payload;
+            })
+            //fetchMovieDetails
+            .addCase(fetchMovieDetails.pending, (state) => {
+                state.loading = true;
+                state.error = null;
+            })
+            .addCase(fetchMovieDetails.fulfilled, (state, action) => {
+                state.loading = false;
+                state.currentMovie = action.payload;
+            })
+            .addCase(fetchMovieDetails.rejected, (state, action) => {
+                state.loading = false;
+                state.error = action.payload;
+            })
     }
 })
 
-export const {
-    moviesLoading,
-    moviesReceived,
-    moviesFailed,
-    movieDetailsLoading,
-    movieDetailsReceived,
-    movieDetailsFailed,
-    clearMovies,
-} = movieSlice.actions;
+export const { clearMovies } = movieSlice.actions;
+
+export const selectUniqueMovies = (state) => removeDuplicates(state.movies.items);
 
 export default movieSlice.reducer;

@@ -1,13 +1,14 @@
 import './SearchInput.css';
 import MagnifierIcon from '@gravity-ui/icons/svgs/magnifier.svg';
 import { useDispatch } from 'react-redux';
-import { fetchMovies } from '../../slices/movieSlice';
+import { clearMovies, fetchMovies } from '../../slices/movieSlice';
 
 function SearchInput() {
     const dispatch = useDispatch();
 
     async function handleSubmit(e) {
         e.preventDefault();
+        dispatch(clearMovies());
 
         const searchText = getFormData(e);
         dispatch(fetchMovies(searchText.search))
